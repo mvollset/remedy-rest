@@ -22,7 +22,42 @@ var client=remedy({
 
 ```
 
+##Quick example
+Lists all mailboxes in AR System Email Mailbox Configuration
+```js
+var remedy=require('remedy-rest');
+var client=remedy({
+        username: "Demo",
+        password: "password",
+        host: "remedy01.test.local",//Server where the rest api is running, usually the AR server
+        port: "8008",//Port where the rest api is exposed.
+        https: false
+});
+
+client.login(function(err,callback){
+    if(err){
+        console.log(err);
+    }
+    else{
+        client.get({
+                    path: {
+                            schema: "AR System Email Mailbox Configuration" //AR Schema name
+                        }
+            },function(err,data){
+                if(err){
+                    console.log(err);
+                }
+                else{
+                    for(var i=0;i<data.entries.length;i++){
+                        console.log(data.entries[i].value["Mailbox Name"]);
+                    }
+                }
+                });
+    }
+    });
+```
 ## Tests
+Iomport def file located in the defs folder and run:
  `npm test`
 
 
