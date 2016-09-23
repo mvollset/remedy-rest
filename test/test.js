@@ -17,9 +17,7 @@ describe("#Remedy Rest", function() {
         });
         it("Should fail to login", function(done) {
             var localconfig = {
-                userinfo: {
-                    password: "notverylikelypassword..................."
-                }
+                password: "notverylikelypassword..................."
             };
             localconfig = _.extend(config, localconfig);
             var remedyClient = remedy(localconfig);
@@ -31,9 +29,7 @@ describe("#Remedy Rest", function() {
         });
         it("Should get guestuser", function(done) {
             var localconfig = {
-                userinfo: {
-                    username: "notverylikelyusername..................."
-                },
+                username: "notverylikelyusername...................",
                 allowGuestuser: true
             };
             localconfig = _.extend(config, localconfig);
@@ -85,5 +81,57 @@ describe("#Remedy Rest", function() {
         });
 
 
+    });
+    describe("#Post", function() {
+        var remedyClient = remedy(config);
+        before(function(done) {
+            remedyClient.login(function(err, result) {
+                done();
+            });
+        });
+        it("Should create a row", function(done) {
+
+            remedyClient.post({
+                path: {
+                    schema: "SYSCOM:REST:TEST"
+                },
+                data: {
+                    values: {
+                        "Status": 0,
+                        "Short Description": "Description"
+                    }
+                }
+            }, function(err, result) {
+                expect(result.entryId.length).to.equal(15);
+                done();
+            })
+        });
+         it("Should create a row with an attachment", function(done) {
+
+            remedyClient.post({
+                path: {
+                    schema: "SYSCOM:REST:TEST"
+                },
+                data: {
+                    values: {
+                        "Status": 0,
+                        "Short Description": "Description",
+                        "Attachment_2":"1.txt",
+                        "Attachment_1":"2.txt"
+                    },
+                        attachments:{
+                            "Attachment_2":{
+                                path:"./test/testdata/2.txt"
+                            },
+                            "Attachment_1":{
+                                path:"./test/testdata/1.txt"
+                            }
+                        }
+                }
+            }, function(err, result) {
+                expect(result.entryId.length).to.equal(15);
+                done();
+            })
+        });
     });
 });

@@ -16,8 +16,14 @@ function clientConnect(config) {
 function Client(config) {
     //if (!(this instanceof Client)) return new Client(config);
     this._config = config;
-    this.userinfo = config.userinfo;
-    this.serverinfo = config.serverinfo;
+    this.userinfo = {
+        username: config.username,
+        password: config.password
+    };
+    this.serverinfo = {
+        host: config.host,
+        port: config.port
+    }
     this.https = config.https;
     this.allowGuestuser = config.allowGuestuser;
     this.restclient = new rest();
@@ -235,10 +241,10 @@ Client.prototype.post = function(args, callback) {
     var attachments = this.extractAttachments(args);
     if (attachments) {
         delete(args.data.attachments);
-        this.requestWithAttachments(args, attachments, callback);
+        self.requestWithAttachments(args, attachments, callback);
     } else {
         var o = {
-            headers: getStandardHeaders()
+            headers: self.getStandardHeaders()
         };
         var rr = _.extend(o, args);
         this.restclient.post(self.rooturl + "/${schema}", rr, function(data, response) {
@@ -266,7 +272,7 @@ Client.prototype.post = function(args, callback) {
     }
 
 };
-Client.prototype.requestWithAttachment = function(args, attachments, callback) {
+Client.prototype.requestWithAttachments = function(args, attachments, callback) {
     var self = this;
     var method = "POST";
     var url = self.rooturl + "/" + args.path.schema;

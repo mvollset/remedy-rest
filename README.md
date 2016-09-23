@@ -7,6 +7,21 @@ Node.js rest client for ARS
 ## Installation
  `npm install remedy-rest`
 
+##Usage
+
+'''js
+var remedy=require('remedy-rest');
+var client=remedy({
+        username: "Demo",
+        password: "password",
+        host: "remedy01.test.local",//Server where the rest api is running usually the AR server
+        port: "8008",//Port where the rest api is exposed.
+        https: false,
+        allowGuestuser: false
+});
+
+'''
+
 ## Tests
  `npm test`
 
