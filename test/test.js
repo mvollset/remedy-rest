@@ -237,7 +237,7 @@ describe("#Remedy Rest", function() {
                             id: id
                         }
                     }, function(err, data) {
-                        if(err){
+                        if (err) {
                             console.log(err);
                         }
                         expect(data.statusCode).to.equal(204);
@@ -332,7 +332,7 @@ describe("#Remedy Rest", function() {
             });
         });
         var entryId;
-        it("First create a new row", function(done) {
+        it("Get options for the form", function(done) {
 
             remedyClient.options({
                 path: {
@@ -349,6 +349,72 @@ describe("#Remedy Rest", function() {
                 done();
             })
         });
-       
+
+    });
+    describe("#Check unauthorized", function() {
+        var remedyClient = remedy(config);
+        before(function(done) {
+            remedyClient.login(function(err, result) {
+                //Clear login token to fail
+                remedyClient.token = "daskdakdjhaksd";
+                done();
+            });
+        });
+        var entryId;
+        it("Get options for the form without login i", function(done) {
+
+            remedyClient.options({
+                path: {
+                    schema: "SYSCOM:REST:TEST"
+                },
+                data: {
+                    values: {
+                        "Status": 0,
+                        "Short Description": "Description"
+                    }
+                }
+            }, function(err, result) {
+                expect(err).to.not.equal(null);
+                expect(err.statusCode).to.equal(401);
+                done();
+            })
+        });
+        it("Get entry for the form without login i", function(done) {
+
+            remedyClient.get({
+                path: {
+                    schema: "SYSCOM:REST:TEST"
+                }
+            }, function(err, result) {
+                expect(err).to.not.equal(null);
+                expect(err.statusCode).to.equal(401);
+                done();
+            })
+        });
+         it("Post entry for the form without login i", function(done) {
+
+            remedyClient.post({
+                path: {
+                    schema: "SYSCOM:REST:TEST"
+                }
+            }, function(err, result) {
+                expect(err).to.not.equal(null);
+                expect(err.statusCode).to.equal(401);
+                done();
+            })
+        });
+         it("Put entry for the form without login i", function(done) {
+
+            remedyClient.put({
+                path: {
+                    schema: "SYSCOM:REST:TEST"
+                }
+            }, function(err, result) {
+                expect(err).to.not.equal(null);
+                expect(err.statusCode).to.equal(401);
+                done();
+            })
+        });
+
     });
 });

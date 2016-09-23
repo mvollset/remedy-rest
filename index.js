@@ -27,6 +27,17 @@ function Client(config) {
     this.https = config.https;
     this.allowGuestuser = config.allowGuestuser;
     this.restclient = new rest();
+
+    if (config.clientTypeId || config.rpcQueue) {
+        this.optionalHeaders = {};
+        if (config.clientTypeId) {
+            this.optionalHeaders["X-AR-Client-Type"] = config.clientTypeId
+        }
+        if (config.rpcQueue) {
+            this.optionalHeaders["X-AR-RPC-Queue"] = config.rpcQueue
+        }
+    }
+    this.rpcQueue = config.rpcQueue;
     this.rooturl = null;
     this.token = null;
     EventEmitter.call(this);
@@ -153,6 +164,9 @@ Client.prototype.getStandardHeaders = function(additionalHeaders) {
         "Content-Type": "application/json",
         "Authorization": this.token
     };
+    if (this.additionalHeaders) {
+        _.extend(header, this.additionalHeaders);
+    }
     if (additionalHeaders)
         return _.extend(headers, additionalHeaders);
     return headers;
@@ -182,7 +196,7 @@ Client.prototype.login = function(callback) {
                 self.token = "AR-JWT " + chunk;
             }).on("end", function() {
                 var result = self.parseARMessages(res.headers);
-                if (!result || !result.hasWarnings || result.hasErrors)
+                if (!result || !result.hasWarnings || !result.hasErrors)
                     callback(null, "ok");
                 else if (result.guestUser && this.allowGuestuser)
                     callback(null, "ok");
@@ -208,10 +222,18 @@ Client.prototype.options = function(args, callback) {
         headers: self.getStandardHeaders()
     };
     request(options, function(err, response, body) {
+
         if (err) {
             callback(err);
-        } else
-            callback(null, JSON.parse(body));
+        } else {
+            if (response.statusCode !== 200) {
+                callback({
+                    statusCode: response.statusCode,
+                    data: JSON.parse(body)
+                });
+            } else
+                callback(null, JSON.parse(body));
+        }
     });
 
 };
