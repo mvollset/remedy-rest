@@ -56,8 +56,86 @@ client.login(function(err,callback){
     }
     });
 ```
+
+##Search example
+Find user Demo in the User schema.
+```js
+var remedy=require('remedy-rest');
+var client=remedy({
+        username: "Demo",
+        password: "password",
+        host: "remedy01.test.local",//Server where the rest api is running, usually the AR server
+        port: "8008",//Port where the rest api is exposed.
+        https: false
+});
+
+client.login(function(err,callback){
+    if(err){
+        console.log(err);
+    }
+    else{
+        client.get({
+                    path: {
+                            schema: "User" //AR Schema name
+                        },
+                        parameters:{
+                            q:"'Login Name'=\"Demo\"",
+                            fields:["Login Name"]
+                        }
+            },function(err,data){
+                if(err){
+                    console.log(err);
+                }
+                else{
+                    for(var i=0;i<data.entries.length;i++){
+                        console.log(data.entries[i].value["Login Name"]);
+                    }
+                }
+                });
+    }
+    });
+```
+
+##Post example
+Find user Demo in the User schema.
+```js
+var remedy=require('remedy-rest');
+var client=remedy({
+        username: "Demo",
+        password: "password",
+        host: "remedy01.test.local",//Server where the rest api is running, usually the AR server
+        port: "8008",//Port where the rest api is exposed.
+        https: false
+});
+
+client.login(function(err,callback){
+    if(err){
+        console.log(err);
+    }
+    else{
+        client.post({
+                    path: {
+                            schema: "Simple Form" //AR Schema name
+                        },
+                        data:{
+                            values:{
+                                "Submitter":"Allen",
+                                "Short Description":"testing 123"
+                            }
+                        }
+            },function(err,data){
+                if(err){
+                    console.log(err);
+                }
+                else{
+                   console.log(data.entryId)
+                }
+                });
+    }
+    });
+```
 ## Tests
-Iomport def file located in the defs folder and run:
+Import def file located in the defs folder and run:
  `npm test`
 
 

@@ -117,6 +117,22 @@ describe("#Remedy Rest", function() {
                 done();
             })
         });
+        it("Should return rows sorted asc on requestid", function(done) {
+        remedyClient.get({
+                    path: {
+                            schema: "User" //AR Schema name
+                        },
+                        parameters:{
+                            q:"'Login Name'=\"Demo\"",
+                             fields:"Login Name"
+                        }
+            },function(err,result){
+                    expect(result.entries.length).to.equal(1);
+                    expect(result.entries[0].values["Login Name"]).to.equal("Demo");
+                    done();
+                });
+    
+    });
 
 
     });
