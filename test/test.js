@@ -79,7 +79,7 @@ describe("#Remedy Rest", function() {
             });
 
         });
-         it("Should return rows on form [Short Description] [Status]", function(done) {
+        it("Should return rows on form [Short Description] [Status]", function(done) {
 
             remedyClient.get({
                 path: {
@@ -88,17 +88,17 @@ describe("#Remedy Rest", function() {
                 parameters: {
                     limit: 5,
                     offset: 0,
-                    fields:["Short Description","Status"]
+                    fields: ["Short Description", "Status"]
                 }
             }, function(err, result) {
                 expect(result.entries).to.be.instanceOf(Array);
                 expect(result.entries[0].values).to.have.property("Short Description");
                 expect(result.entries[0].values).to.have.property("Status");
-                expect(result.entries[0].values).to.not.have.property("Assigned To");                
+                expect(result.entries[0].values).to.not.have.property("Assigned To");
                 done();
             })
         });
-         it("Should return rows sorted asc on requestid", function(done) {
+        it("Should return rows sorted asc on requestid", function(done) {
 
             remedyClient.get({
                 path: {
@@ -107,13 +107,13 @@ describe("#Remedy Rest", function() {
                 parameters: {
                     limit: 5,
                     offset: 0,
-                    fields:["Short Description","Status","Request ID"],
-                    sort:["Request ID.asc"]
+                    fields: ["Short Description", "Status", "Request ID"],
+                    sort: ["Request ID.asc"]
                 }
             }, function(err, result) {
                 expect(result.entries).to.be.instanceOf(Array);
-                expect((result.entries[0].values["Request ID"]<result.entries[1].values["Request ID"])).to.be.equal(true);
-             
+                expect((result.entries[0].values["Request ID"] < result.entries[1].values["Request ID"])).to.be.equal(true);
+
                 done();
             })
         });
@@ -182,7 +182,7 @@ describe("#Remedy Rest", function() {
             });
 
         });
-         it("Should fail to ceate a row ", function(done) {
+        it("Should fail to ceate a row ", function(done) {
 
             remedyClient.post({
                 path: {
@@ -198,6 +198,54 @@ describe("#Remedy Rest", function() {
                 expect(err.statusCode).to.equal(500);
                 expect(err.data[0].messageNumber).to.equal(307);
                 done();
+            });
+
+        });
+        it("Should create a row, get it, then delete the row ", function(done) {
+
+            remedyClient.post({
+                path: {
+                    schema: "SYSCOM:REST:TEST"
+                },
+                data: {
+                    values: {
+                        "Status": 0,
+                        "Short Description": "Description"
+                    },
+                    attachments: {
+                        "Attachment_2": {
+                            path: "./test/testdata/2.txt"
+                        },
+                        "Attachment_1": {
+                            path: "./test/testdata/1.txt"
+                        }
+                    }
+                }
+            }, function(err, result) {
+                var id = result.entryId;
+                expect(result.entryId.length).to.equal(15);
+                remedyClient.get({
+                    path: {
+                        schema: "SYSCOM:REST:TEST",
+                        id: id
+                    }
+                }, function(err, result) {
+                    expect(result.values["Request ID"]).to.equal(id);
+                    remedyClient.delete({
+                        path: {
+                            schema: "SYSCOM:REST:TEST",
+                            id: id
+                        }
+                    }, function(err, data) {
+                        if(err){
+                            console.log(err);
+                        }
+                        expect(data.statusCode).to.equal(204);
+                        done();
+                    })
+
+
+                });
             });
 
         });
@@ -274,5 +322,33 @@ describe("#Remedy Rest", function() {
                 done();
             })
         });
+    });
+
+    describe("#Options", function() {
+        var remedyClient = remedy(config);
+        before(function(done) {
+            remedyClient.login(function(err, result) {
+                done();
+            });
+        });
+        var entryId;
+        it("First create a new row", function(done) {
+
+            remedyClient.options({
+                path: {
+                    schema: "SYSCOM:REST:TEST"
+                },
+                data: {
+                    values: {
+                        "Status": 0,
+                        "Short Description": "Description"
+                    }
+                }
+            }, function(err, result) {
+                expect(err).to.equal(null);
+                done();
+            })
+        });
+       
     });
 });
