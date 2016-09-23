@@ -1,0 +1,263 @@
+char-set: UTF-8
+#
+#  File exported fr sep 23 15:03:37 CEST 2016
+#
+begin schema
+   name           : SYSCOM:REST:TEST
+   core-version   : 2
+   upgrade-version: 0
+   num-fields     : 12
+   timestamp      : 1473850931
+   owner          : hr
+   last-changed   : hr
+   default-vui    : Default Administrator View__c
+   num-vuis       : 1
+   export-version : 12
+   schema-type    : 1
+   next-field-id  : 536870916
+   object-prop    : 2\90016\4\1\1\90015\2\4\
+  assoc-to-follow : 
+   assoc-sel-type : 0
+     assoc-list   : 0\
+vui  {
+   id             : 536870912
+   name           : Default Administrator View__c
+   label          : Default Administrator View__c
+   timestamp      : 1473847135
+   vui-locale     : 
+   vui-type       : 1
+   owner          : hr
+   last-changed   : hr
+   display-prop   : 1\20\4\29\Default Administrator View__c\
+   object-prop    : 2\90016\4\1\1\90015\2\4\
+}
+field {
+   id             : 1
+   name           : Request ID
+   datatype       : 4
+   fieldtype      : 1
+   create-mode    : 2
+   option         : 3
+   timestamp      : 1473847135
+   owner          : hr
+   last-changed   : hr
+   length-units   : 0
+   maxlength      : 15
+   clob-store-opt : 0
+   menu-style     : 2
+   qbe-match-op   : 1
+   fulltext-optns : 0
+   permission     : 0\1
+   permission     : 4\1
+   permission     : 3\1
+ display-instance : 536870912\14\3\41\2\5399\2500\28233\4600\4\6\1\7\40\2147483640\20\4\10\Request ID\21\41\2\0\400\7086\2100\27\8\16\28\6\4\29\6\1\60\40\1\65\41\2\0\0\0\0\&
+ display-instance : 143\40\4294967295\151\41\2\7649\0\22834\2100\170\40\0\231\6\1\
+   object-prop    : 2\90016\4\1\1\90015\2\4\
+}
+field {
+   id             : 2
+   name           : Submitter
+   datatype       : 4
+   fieldtype      : 1
+   create-mode    : 1
+   option         : 1
+   timestamp      : 1473849554
+   owner          : hr
+   last-changed   : hr
+   length-units   : 0
+   maxlength      : 254
+   clob-store-opt : 0
+   menu-style     : 2
+   qbe-match-op   : 1
+   fulltext-optns : 0
+   default        : $-1$
+   permission     : 4\1
+   permission     : 3\1
+ display-instance : 536870912\16\3\41\2\6074\5000\31158\7100\4\6\1\7\40\2147483641\20\4\9\Submitter\21\41\2\0\400\6411\2100\27\8\16\28\6\4\29\6\1\60\40\1\61\40\30\65\41\2\0&
+ display-instance : \0\0\0\66\41\2\22722\0\25084\2100\143\40\4294967295\151\41\2\6974\0\22159\2100\170\40\0\231\6\0\
+   object-prop    : 2\90016\4\1\1\90015\2\4\
+}
+field {
+   id             : 3
+   name           : Create Date
+   datatype       : 7
+   fieldtype      : 1
+   create-mode    : 2
+   option         : 3
+   timestamp      : 1473847135
+   owner          : hr
+   last-changed   : hr
+   permission     : 4\1
+   permission     : 3\1
+ display-instance : 536870912\16\3\41\2\5061\7500\31157\9600\4\6\1\7\40\2147483642\20\4\11\Create Date\21\41\2\0\400\7424\2100\27\8\16\28\6\4\29\6\1\60\40\1\61\40\23\65\41\&
+ display-instance : 2\0\0\0\0\66\41\2\23734\0\26096\2100\143\40\4294967295\151\41\2\7986\0\23171\2100\170\40\0\231\6\0\
+   object-prop    : 2\90016\4\1\1\90015\2\4\
+}
+field {
+   id             : 4
+   name           : Assigned To
+   datatype       : 4
+   fieldtype      : 1
+   create-mode    : 2
+   option         : 2
+   timestamp      : 1473847135
+   owner          : hr
+   last-changed   : hr
+   length-units   : 0
+   maxlength      : 254
+   clob-store-opt : 0
+   menu-style     : 2
+   qbe-match-op   : 1
+   fulltext-optns : 0
+   permission     : 4\1
+ display-instance : 536870912\16\3\41\2\5511\10000\31157\12100\4\6\1\7\40\2147483643\20\4\11\Assigned To\21\41\2\0\400\6974\2100\27\8\16\28\6\4\29\6\1\60\40\1\61\40\30\65\4&
+ display-instance : 1\2\0\0\0\0\66\41\2\23284\0\25646\2100\143\40\4294967295\151\41\2\7536\0\22721\2100\170\40\0\231\6\0\
+   object-prop    : 2\90016\4\1\1\90015\2\4\
+}
+field {
+   id             : 5
+   name           : Last Modified By
+   datatype       : 4
+   fieldtype      : 1
+   create-mode    : 2
+   option         : 3
+   timestamp      : 1473847135
+   owner          : hr
+   last-changed   : hr
+   length-units   : 0
+   maxlength      : 254
+   clob-store-opt : 0
+   menu-style     : 2
+   qbe-match-op   : 1
+   fulltext-optns : 0
+   permission     : 4\1
+ display-instance : 536870912\16\3\41\2\2699\12500\31157\14600\4\6\1\7\40\2147483644\20\4\16\Last Modified By\21\41\2\0\400\9786\2100\27\8\16\28\6\4\29\6\1\60\40\1\61\40\33&
+ display-instance : \65\41\2\0\0\0\0\66\41\2\26096\0\28458\2100\143\40\4294967295\151\41\2\10348\0\25533\2100\170\40\0\231\6\0\
+   object-prop    : 2\90016\4\1\1\90015\2\4\
+}
+field {
+   id             : 6
+   name           : Modified Date
+   datatype       : 7
+   fieldtype      : 1
+   create-mode    : 2
+   option         : 3
+   timestamp      : 1473847135
+   owner          : hr
+   last-changed   : hr
+   permission     : 4\1
+ display-instance : 536870912\16\3\41\2\4049\15000\31158\17100\4\6\1\7\40\2147483645\20\4\13\Modified Date\21\41\2\0\400\8436\2100\27\8\16\28\6\4\29\6\1\60\40\1\61\40\23\65&
+ display-instance : \41\2\0\0\0\0\66\41\2\24746\0\27108\2100\143\40\4294967295\151\41\2\8998\0\24183\2100\170\40\0\231\6\0\
+   object-prop    : 2\90016\4\1\1\90015\2\4\
+}
+field {
+   id             : 7
+   name           : Status
+   datatype       : 6
+   fieldtype      : 1
+   create-mode    : 2
+   option         : 1
+   timestamp      : 1473847135
+   owner          : hr
+   last-changed   : hr
+   enum-value     : New
+   enum-value     : Assigned
+   enum-value     : Fixed
+   enum-value     : Rejected
+   enum-value     : Closed
+   default        : 0
+   permission     : 4\2
+   permission     : 3\1
+ display-instance : 536870912\17\3\41\2\65241\2300\99661\4100\4\6\1\7\40\2147483646\20\4\6\Status\21\41\2\0\400\4499\1800\27\8\16\28\6\4\29\6\1\60\40\1\61\40\0\64\6\1\65\41&
+ display-instance : \2\0\0\0\0\143\40\4294967295\151\41\2\5061\400\34419\2200\170\40\0\230\4\46\5\0\New\1\Assigned\2\Fixed\3\Rejected\4\Closed\231\6\0\
+   object-prop    : 2\90016\4\1\1\90015\2\4\
+}
+field {
+   id             : 8
+   name           : Short Description
+   datatype       : 4
+   fieldtype      : 1
+   create-mode    : 1
+   option         : 1
+   timestamp      : 1473847135
+   owner          : hr
+   last-changed   : hr
+   length-units   : 0
+   maxlength      : 254
+   clob-store-opt : 0
+   menu-style     : 2
+   qbe-match-op   : 1
+   fulltext-optns : 0
+   permission     : 4\1
+   permission     : 3\1
+ display-instance : 536870912\16\3\41\2\33633\2500\63779\4600\4\6\1\7\40\2147483647\20\4\17\Short Description\21\41\2\0\400\11473\2100\27\8\16\28\6\4\29\6\1\60\40\1\61\40\5&
+ display-instance : 0\65\41\2\0\0\0\0\66\41\2\27784\0\30146\2100\143\40\4294967295\151\41\2\12035\0\27220\2100\170\40\0\231\6\0\
+   object-prop    : 2\90016\4\1\1\90015\2\4\
+}
+field {
+   id             : 15
+   name           : Status History
+   datatype       : 4
+   fieldtype      : 1
+   create-mode    : 2
+   option         : 3
+   timestamp      : 1473847134
+   owner          : hr
+   last-changed   : hr
+   permission     : 4\1
+   permission     : 3\1
+   object-prop    : 2\90016\4\1\1\90015\2\4\
+}
+field {
+   id             : 536870913
+   name           : Attachment Pool__c
+   datatype       : 37
+   fieldtype      : 0
+   create-mode    : 2
+   option         : 4
+   timestamp      : 1473847136
+   owner          : hr
+   last-changed   : hr
+   permission     : 0\1
+   permission     : 20000\2
+ display-instance : 536870912\16\3\41\2\46906\12800\85826\23300\4\6\1\7\40\2147483648\14\40\1\20\4\18\Attachment Pool__c\143\40\4294967295\170\40\0\232\4\3\Add\233\4\6\Dele&
+ display-instance : te\234\4\7\Display\235\4\4\Save\236\4\11\Attach Name\237\4\9\File Name\238\4\8\Max Size\271\4\8\Deselect\310\6\0\
+   object-prop    : 2\90016\4\1\1\90015\2\4\
+}
+field {
+   id             : 536870914
+   name           : Attachment_1
+   datatype       : 11
+   fieldtype      : 1
+   create-mode    : 2
+   option         : 2
+   timestamp      : 1473850931
+   owner          : hr
+   last-changed   : hr
+   maxsize        : 0
+   attachtype     : 1
+   fulltext-optns : 0
+   permission     : 0\1
+   permission     : 20000\2
+ display-instance : 536870912\5\3\41\2\0\0\10011\0\4\6\1\20\4\12\Attachment_1\143\40\1\170\40\536870913\
+   object-prop    : 2\90016\4\1\1\90015\2\4\
+}
+field {
+   id             : 536870915
+   name           : Attachment_2
+   datatype       : 11
+   fieldtype      : 1
+   create-mode    : 2
+   option         : 2
+   timestamp      : 1473850931
+   owner          : hr
+   last-changed   : hr
+   maxsize        : 0
+   attachtype     : 1
+   fulltext-optns : 0
+   permission     : 0\1
+   permission     : 20000\2
+ display-instance : 536870912\5\3\41\2\0\0\10011\0\4\6\1\20\4\11\Attachment2\143\40\2\170\40\536870913\
+   object-prop    : 2\90016\4\1\1\90015\2\4\
+}
+end
