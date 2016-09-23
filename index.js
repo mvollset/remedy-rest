@@ -101,13 +101,13 @@ Client.prototype.createUrlFromArgs = function(args) {
     }
     for (var prop in args.parameters) {
         if (prop === "fields") {
-            queryp.push("fields=values(${fields})")
+            queryp.push("fields=values(${fields})");
             args.parameters.fields = this.getUrlParameters(args.parameters.fields).join(",");
         } else if (prop === "expand") {
-            queryp.push("expand=assoc(${expand})")
+            queryp.push("expand=assoc(${expand})");
             args.parameters.expand = this.getUrlParameters(args.parameters.expand).join(",");
         } else if (prop === "sort") {
-            queryp.push("sort=${sort}")
+            queryp.push("sort=${sort}");
             args.parameters.sort = this.getUrlParameters(args.parameters.sort).join(",");
         } else {
             queryp.push(prop + "=${" + prop + "}")
@@ -251,7 +251,8 @@ Client.prototype.post = function(args, callback) {
             if (response.statusCode === 201) {
                 callback(null, {
                     data: data,
-                    entryId: self.getNewEntryId(response)
+                    entryId: self.getNewEntryId(response),
+                    statusCode: response.statusCode
                 });
             } else {
                 var errorMessage;
@@ -307,8 +308,6 @@ Client.prototype.requestWithAttachments = function(args, attachments, callback) 
                 console.error("upload failed:", error);
                 callback(error);
             } else {
-
-                console.log("Upload successful!", body);
                 callback(null, {
                     entryId: method === "POST" ? self.getNewEntryId(response) : null,
                     statusCode: response.statusCode,
@@ -329,13 +328,14 @@ Client.prototype.put = function(args, callback) {
 
 
         var o = {
-            headers: getStandardHeaders()
+            headers: self.getStandardHeaders()
         };
         var rr = _.extend(o, args);
         this.restclient.put(self.rooturl + "/${schema}/${id}", rr, function(data, response) {
             if (response.statusCode === 204) {
                 callback(null, {
-                    data: data
+                    data: data,
+                    statusCode: response.statusCode
                 });
             } else {
                 var errorMessage;
@@ -357,13 +357,14 @@ Client.prototype.put = function(args, callback) {
 Client.prototype.delete = function(args, callback) {
     var self = this;
     var o = {
-        headers: getStandardHeaders()
+        headers: self.getStandardHeaders()
     };
     var rr = _.extend(o, args);
     this.restclient.delete(self.rooturl + "/${schema}/${id}", rr, function(data, response) {
         if (response.statusCode === 204) {
             callback(null, {
-                data: data
+                data: data,
+                statusCode: response.statusCode
             });
         } else {
             var errorMessage;

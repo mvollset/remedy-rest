@@ -79,6 +79,44 @@ describe("#Remedy Rest", function() {
             });
 
         });
+         it("Should return rows on form [Short Description] [Status]", function(done) {
+
+            remedyClient.get({
+                path: {
+                    schema: "SYSCOM:REST:TEST"
+                },
+                parameters: {
+                    limit: 5,
+                    offset: 0,
+                    fields:["Short Description","Status"]
+                }
+            }, function(err, result) {
+                expect(result.entries).to.be.instanceOf(Array);
+                expect(result.entries[0].values).to.have.property("Short Description");
+                expect(result.entries[0].values).to.have.property("Status");
+                expect(result.entries[0].values).to.not.have.property("Assigned To");                
+                done();
+            })
+        });
+         it("Should return rows sorted asc on requestid", function(done) {
+
+            remedyClient.get({
+                path: {
+                    schema: "SYSCOM:REST:TEST"
+                },
+                parameters: {
+                    limit: 5,
+                    offset: 0,
+                    fields:["Short Description","Status","Request ID"],
+                    sort:["Request ID.asc"]
+                }
+            }, function(err, result) {
+                expect(result.entries).to.be.instanceOf(Array);
+                expect((result.entries[0].values["Request ID"]<result.entries[1].values["Request ID"])).to.be.equal(true);
+             
+                done();
+            })
+        });
 
 
     });
@@ -106,7 +144,7 @@ describe("#Remedy Rest", function() {
                 done();
             })
         });
-         it("Should create a row with an attachment", function(done) {
+        it("Should create a row with an attachment", function(done) {
 
             remedyClient.post({
                 path: {
@@ -116,20 +154,123 @@ describe("#Remedy Rest", function() {
                     values: {
                         "Status": 0,
                         "Short Description": "Description",
-                        "Attachment_2":"1.txt",
-                        "Attachment_1":"2.txt"
+                        "Attachment_2": "1.txt",
+                        "Attachment_1": "2.txt"
                     },
-                        attachments:{
-                            "Attachment_2":{
-                                path:"./test/testdata/2.txt"
-                            },
-                            "Attachment_1":{
-                                path:"./test/testdata/1.txt"
-                            }
+                    attachments: {
+                        "Attachment_2": {
+                            path: "./test/testdata/2.txt"
+                        },
+                        "Attachment_1": {
+                            path: "./test/testdata/1.txt"
                         }
+                    }
+                }
+            }, function(err, result) {
+                var id = result.entryId;
+                expect(result.entryId.length).to.equal(15);
+                remedyClient.get({
+                    path: {
+                        schema: "SYSCOM:REST:TEST",
+                        id: id
+                    }
+                }, function(err, result) {
+                    expect(result.values["Request ID"]).to.equal(id);
+                    done();
+
+                });
+            });
+
+        });
+         it("Should fail to ceate a row ", function(done) {
+
+            remedyClient.post({
+                path: {
+                    schema: "SYSCOM:REST:TEST"
+                },
+                data: {
+                    values: {
+                        "Status": 0
+                    }
+                }
+            }, function(err, result) {
+                expect(err).to.not.equal(null);
+                expect(err.statusCode).to.equal(500);
+                expect(err.data[0].messageNumber).to.equal(307);
+                done();
+            });
+
+        });
+    });
+    describe("#Put", function() {
+        var remedyClient = remedy(config);
+        before(function(done) {
+            remedyClient.login(function(err, result) {
+                done();
+            });
+        });
+        var entryId;
+        it("First create a new row", function(done) {
+
+            remedyClient.post({
+                path: {
+                    schema: "SYSCOM:REST:TEST"
+                },
+                data: {
+                    values: {
+                        "Status": 0,
+                        "Short Description": "Description"
+                    }
                 }
             }, function(err, result) {
                 expect(result.entryId.length).to.equal(15);
+                entryId = result.entryId
+                done();
+            })
+        });
+        it("Should update a row with new status and Description", function(done) {
+
+            remedyClient.put({
+                path: {
+                    schema: "SYSCOM:REST:TEST",
+                    id: entryId
+                },
+                data: {
+                    values: {
+                        "Status": 2,
+                        "Short Description": "Updated Description"
+                    }
+                }
+            }, function(err, result) {
+
+                expect(err).to.equal(null);
+                expect(result.statusCode).to.equal(204);
+                done();
+            })
+        });
+        it("Should update a row with new attachment and Description", function(done) {
+
+            remedyClient.put({
+                path: {
+                    schema: "SYSCOM:REST:TEST",
+                    id: entryId
+                },
+                data: {
+                    values: {
+                        "Status": 2,
+                        "Short Description": "Yet another Description",
+                        "Attachment_1": "2.txt"
+                    },
+                    attachments: {
+                        "Attachment_1": {
+                            path: "./test/testdata/1.txt"
+                        }
+                    }
+                }
+            }, function(err, result) {
+
+                expect(err).to.equal(null);
+                expect(result.statusCode).to.equal(204);
                 done();
             })
         });

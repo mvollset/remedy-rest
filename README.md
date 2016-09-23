@@ -9,7 +9,7 @@ Node.js rest client for ARS
 
 ##Usage
 
-'''js
+```js
 var remedy=require('remedy-rest');
 var client=remedy({
         username: "Demo",
@@ -20,7 +20,7 @@ var client=remedy({
         allowGuestuser: false
 });
 
-'''
+```
 
 ## Tests
  `npm test`
