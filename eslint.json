@@ -1,0 +1,7 @@
+{
+    "rules": {
+        "eqeqeq": "error",
+        "curly": "off",
+        "quotes": ["warn", "double"]
+    }
+}
