@@ -354,14 +354,9 @@ describe("#Remedy Rest", function() {
             remedyClient.options({
                 path: {
                     schema: "SYSCOM:REST:TEST"
-                },
-                data: {
-                    values: {
-                        "Status": 0,
-                        "Short Description": "Description"
-                    }
                 }
             }, function(err, result) {
+                console.log(result);
                 expect(err).to.equal(null);
                 done();
             })
@@ -423,6 +418,34 @@ describe("#Remedy Rest", function() {
         });
 
     });
+    describe("#Check header stuff", function() {
+        var localconfig = {
+                clientTypeId: "1234",
+                rpcQueue:13232
+            };
+        localconfig=_.extend(localconfig,config)
+        var remedyClient = remedy(localconfig);
+        before(function(done) {
+            remedyClient.login(function(err, result) {
+                //Clear login token to fail
+                remedyClient.token = "daskdakdjhaksd";
+                done();
+            });
+        });
+        var entryId;
+        it("Get with funky options.", function(done) {
+
+            remedyClient.get({
+                path: {
+                    schema: "SYSCOM:REST:TEST"
+                }
+            }, function(err, result) {
+                expect(err).to.not.equal(null);
+                expect(err.statusCode).to.equal(401);
+                done();
+            })
+        });
+    });
     describe("#Check unauthorized", function() {
         var remedyClient = remedy(config);
         before(function(done) {
@@ -438,12 +461,6 @@ describe("#Remedy Rest", function() {
             remedyClient.options({
                 path: {
                     schema: "SYSCOM:REST:TEST"
-                },
-                data: {
-                    values: {
-                        "Status": 0,
-                        "Short Description": "Description"
-                    }
                 }
             }, function(err, result) {
                 expect(err).to.not.equal(null);

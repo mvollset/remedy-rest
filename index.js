@@ -45,28 +45,43 @@ function Client(config) {
     }
 
     this.rpcQueue = config.rpcQueue;
-    this.rooturl = "http" + (this.https ? "s" : "") + "://" + this.serverinfo.host + ":" + this.serverinfo.port + "/api/arsys/v1/entry";
+    this.rooturl = "http" + (this.https ? "s" : "") + "://" + this.serverinfo.host + ":" + this.serverinfo.port + "/api/arsys/v1/";
     this.token = null;
     EventEmitter.call(this);
 
 }
 inherits(Client, EventEmitter);
-/** Utility functions
- */
-/*
-Parses the error messages returned by AR server
-*/
+Client.prototype.urlMap = function(func) {
+
+    }
+    /** Utility functions
+     */
+    /*
+    Parses the error messages returned by AR server
+    */
 Client.prototype.parseErrorResponse = function(data, response) {
     var headers = response.headers;
     if (!headers)
         return {
             type: "httpError",
-            returnCode: response.returnCode
+            returnCode: response.returnCode,
+            data: data
         }
     if (headers["Content-Type"] === "application/json") {
         if (data) {
             var errObj = JSON.parse(data);
         }
+        return {
+            type: "httpError",
+            returnCode: response.returnCode,
+            data: data,
+            errObj: errObj
+        }
+    }
+    return {
+        type: "httpError",
+        returnCode: response.returnCode,
+        data: data
     }
 };
 /*
@@ -108,7 +123,7 @@ Client.prototype.getNewEntryId = function(response) {
 /*
 Creates url from arguments for get requests and workaround the incompatibilities between AR rest and rest-client
 */
-Client.prototype.createUrlFromArgs = function(args) {
+Client.prototype.createGetUrlFromArgs = function(args) {
     //Schema must always be included so we have
     var path = ["${schema}"];
     var queryp = [];
@@ -133,7 +148,7 @@ Client.prototype.createUrlFromArgs = function(args) {
         }
 
     }
-    var url = this.rooturl + "/" + path.join("/")
+    var url = this.rooturl + "entry/" + path.join("/")
     if (queryp.length > 0) {
         url = url + "?" + queryp.join("&");
     }
@@ -151,7 +166,8 @@ Client.prototype.urlEncodeArray = function(arr) {
         ret.push(encodeURIComponent(arr[i]));
     }
     return ret;
-}
+};
+
 Client.prototype.getUrlParameters = function(paramvalue) {
     if (Array.isArray(paramvalue))
         return this.urlEncodeArray(paramvalue);
@@ -186,20 +202,27 @@ Client.prototype.getStandardHeaders = function(additionalHeaders) {
         return _.extend(headers, additionalHeaders);
     return headers;
 };
+Client.prototype.getRequestOptions = function(options, additionalHeaders) {
+    var defaultoptions = {
+        host: this.proxy ? this.proxy.host : this.serverinfo.host,
+        port: this.proxy ? this.proxy.port : this.serverinfo.port,
+        tunnel: this.proxy ? this.proxy.tunnel : null,
+        headers: this.getStandardHeaders()
+    }
+    return _.extend(defaultoptions, options);
+}
 Client.prototype.login = function(callback) {
 
     var post_data = querystring.stringify(this.userinfo);
-    var post_options = {
-        host: this.proxy_config ? this.proxy.host : this.serverinfo.host,
-        port: this.proxy_config ? this.proxy.port : this.serverinfo.port,
-        tunnel: this.proxy_config ? this.proxy_config.tunnel : false,
+
+    var post_options = this.getRequestOptions({
         path: "http" + (this.https ? "s" : "") + "://" + this.serverinfo.host + ":" + this.serverinfo.port + "/api/jwt/login",
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
             "Content-Length": Buffer.byteLength(post_data)
         }
-    };
+    });
     var self = this;
     var post_req = http.request(post_options, function(res) {
         if (res.statusCode !== 200) {
@@ -230,26 +253,30 @@ Client.prototype.login = function(callback) {
 };
 
 Client.prototype.options = function(args, callback) {
-    var url = this.rooturl + "/" + args.path.schema;
+    var url = this.rooturl + "entry/" + args.path.schema;
     var self = this;
-    var options = {
-        host: this.proxy_config ? this.proxy.host : this.serverinfo.host,
-        port: this.proxy_config ? this.proxy.port : this.serverinfo.port,
-        tunnel: this.proxy_config ? this.proxy_config.tunnel : false,
+    var options = self.getRequestOptions({
         url: url,
-        method: "OPTIONS",
-        headers: self.getStandardHeaders()
-    };
+        method: "OPTIONS"
+    });
     request(options, function(err, response, body) {
 
         if (err) {
-            callback(err);
+            var p = self.parseErrorResponse(body, response);
+            callback({
+                statusCode: response.statusCode,
+                data: p.data,
+                errObj: p.errObj
+            });
         } else {
             if (response.statusCode !== 200) {
+                var p = self.parseErrorResponse(body, response);
                 callback({
                     statusCode: response.statusCode,
-                    data: JSON.parse(body)
+                    data: p.data,
+                    errObj: p.errObj
                 });
+
             } else
                 callback(null, JSON.parse(body));
         }
@@ -261,7 +288,7 @@ Client.prototype.get = function(args, callback) {
     var o = {
         headers: self.getStandardHeaders()
     };
-    var urlandargs = self.createUrlFromArgs(args);
+    var urlandargs = self.createGetUrlFromArgs(args);
     var rr = _.extend(o, urlandargs.args);
     self.restclient.get(urlandargs.url, rr, function(data, response) {
         if (response.statusCode === 200) {
@@ -284,7 +311,7 @@ Client.prototype.getAttachment = function(args, callback) {
     };
 
     var rr = _.extend(o, args);
-    self.restclient.get(self.rooturl + "/${schema}/${id}/attach/${attachfield}", rr, function(data, response) {
+    self.restclient.get(self.rooturl + "entry/${schema}/${id}/attach/${attachfield}", rr, function(data, response) {
         if (response.statusCode === 200) {
             self.emit("data", data);
             if (callback)
@@ -309,7 +336,7 @@ Client.prototype.post = function(args, callback) {
             headers: self.getStandardHeaders()
         };
         var rr = _.extend(o, args);
-        this.restclient.post(self.rooturl + "/${schema}", rr, function(data, response) {
+        this.restclient.post(self.rooturl + "entry/${schema}", rr, function(data, response) {
             if (response.statusCode === 201) {
                 callback(null, {
                     data: data,
@@ -338,7 +365,7 @@ Client.prototype.post = function(args, callback) {
 Client.prototype.requestWithAttachments = function(args, attachments, callback) {
     var self = this;
     var method = "POST";
-    var url = self.rooturl + "/" + args.path.schema;
+    var url = self.rooturl + "entry/" + args.path.schema;
     //If no ID assume post else put 
     if (args.path.id) {
         method = "PUT";
@@ -393,7 +420,7 @@ Client.prototype.put = function(args, callback) {
             headers: self.getStandardHeaders()
         };
         var rr = _.extend(o, args);
-        this.restclient.put(self.rooturl + "/${schema}/${id}", rr, function(data, response) {
+        this.restclient.put(self.rooturl + "entry/${schema}/${id}", rr, function(data, response) {
             if (response.statusCode === 204) {
                 callback(null, {
                     data: data,
@@ -422,7 +449,7 @@ Client.prototype.delete = function(args, callback) {
         headers: self.getStandardHeaders()
     };
     var rr = _.extend(o, args);
-    this.restclient.delete(self.rooturl + "/${schema}/${id}", rr, function(data, response) {
+    this.restclient.delete(self.rooturl + "entry/${schema}/${id}", rr, function(data, response) {
         if (response.statusCode === 204) {
             callback(null, {
                 data: data,
