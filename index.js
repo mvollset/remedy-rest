@@ -26,7 +26,13 @@ function Client(config) {
     }
     this.https = config.https;
     this.allowGuestuser = config.allowGuestuser;
-    this.restclient = new rest();
+    if (config.proxy_config) {
+        this.proxy = config.proxy_config;
+        this.restclient = new rest({
+            proxy: this.proxy
+        });
+    } else
+        this.restclient = new rest();
 
     if (config.clientTypeId || config.rpcQueue) {
         this.optionalHeaders = {};
@@ -37,8 +43,9 @@ function Client(config) {
             this.optionalHeaders["X-AR-RPC-Queue"] = config.rpcQueue
         }
     }
+
     this.rpcQueue = config.rpcQueue;
-    this.rooturl = null;
+    this.rooturl = "http" + (this.https ? "s" : "") + "://" + this.serverinfo.host + ":" + this.serverinfo.port + "/api/arsys/v1/entry";
     this.token = null;
     EventEmitter.call(this);
 
@@ -121,7 +128,8 @@ Client.prototype.createUrlFromArgs = function(args) {
             queryp.push("sort=${sort}");
             args.parameters.sort = this.getUrlParameters(args.parameters.sort).join(",");
         } else {
-            queryp.push(prop + "=${" + prop + "}")
+            queryp.push(prop + "=${" + prop + "}");
+            args.parameters[prop] = encodeURIComponent(args.parameters[prop]);
         }
 
     }
@@ -137,12 +145,19 @@ Client.prototype.createUrlFromArgs = function(args) {
         args: args
     }
 };
+Client.prototype.urlEncodeArray = function(arr) {
+    var ret = [];
+    for (var i = 0; i < arr.length; i++) {
+        ret.push(encodeURIComponent(arr[i]));
+    }
+    return ret;
+}
 Client.prototype.getUrlParameters = function(paramvalue) {
     if (Array.isArray(paramvalue))
-        return paramvalue;
+        return this.urlEncodeArray(paramvalue);
     if (typeof(paramvalue) === "string" || paramvalue instanceof String)
-        return [paramvalue];
-    return _.keys(paramvalue);
+        return this.urlEncodeArray([paramvalue]);
+    return this.urlEncodeArray(_.keys(paramvalue));
 
 };
 /*
@@ -172,12 +187,13 @@ Client.prototype.getStandardHeaders = function(additionalHeaders) {
     return headers;
 };
 Client.prototype.login = function(callback) {
-    this.rooturl = "http" + (this.https ? "s" : "") + "://" + this.serverinfo.host + ":" + this.serverinfo.port + "/api/arsys/v1/entry";
+
     var post_data = querystring.stringify(this.userinfo);
     var post_options = {
-        host: this.serverinfo.host,
-        port: this.serverinfo.port,
-        path: "/api/jwt/login",
+        host: this.proxy_config ? this.proxy.host : this.serverinfo.host,
+        port: this.proxy_config ? this.proxy.port : this.serverinfo.port,
+        tunnel: this.proxy_config ? this.proxy_config.tunnel : false,
+        path: "http" + (this.https ? "s" : "") + "://" + this.serverinfo.host + ":" + this.serverinfo.port + "/api/jwt/login",
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -217,6 +233,9 @@ Client.prototype.options = function(args, callback) {
     var url = this.rooturl + "/" + args.path.schema;
     var self = this;
     var options = {
+        host: this.proxy_config ? this.proxy.host : this.serverinfo.host,
+        port: this.proxy_config ? this.proxy.port : this.serverinfo.port,
+        tunnel: this.proxy_config ? this.proxy_config.tunnel : false,
         url: url,
         method: "OPTIONS",
         headers: self.getStandardHeaders()
@@ -258,6 +277,27 @@ Client.prototype.get = function(args, callback) {
         }
     });
 };
+Client.prototype.getAttachment = function(args, callback) {
+    var self = this;
+    var o = {
+        headers: self.getStandardHeaders()
+    };
+
+    var rr = _.extend(o, args);
+    self.restclient.get(self.rooturl + "/${schema}/${id}/attach/${attachfield}", rr, function(data, response) {
+        if (response.statusCode === 200) {
+            self.emit("data", data);
+            if (callback)
+                callback(null, data);
+        } else {
+            if (callback)
+                callback({
+                    statusCode: response.statusCode,
+                    data: data
+                });
+        }
+    });
+}
 Client.prototype.post = function(args, callback) {
     var self = this;
     var attachments = this.extractAttachments(args);

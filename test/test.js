@@ -3,6 +3,7 @@
 var expect = require("chai").expect;
 var remedy = require("../index");
 var config = require("./config.js");
+var async = require("async");
 var _ = require("underscore");
 
 describe("#Remedy Rest", function() {
@@ -108,7 +109,7 @@ describe("#Remedy Rest", function() {
                     limit: 5,
                     offset: 0,
                     fields: ["Short Description", "Status", "Request ID"],
-                    sort: ["Request ID.asc"]
+                    sort: ["Request ID.ASC"]
                 }
             }, function(err, result) {
                 expect(result.entries).to.be.instanceOf(Array);
@@ -118,21 +119,21 @@ describe("#Remedy Rest", function() {
             })
         });
         it("Should return rows sorted asc on requestid", function(done) {
-        remedyClient.get({
-                    path: {
-                            schema: "User" //AR Schema name
-                        },
-                        parameters:{
-                            q:"'Login Name'=\"Demo\"",
-                             fields:"Login Name"
-                        }
-            },function(err,result){
-                    expect(result.entries.length).to.equal(1);
-                    expect(result.entries[0].values["Login Name"]).to.equal("Demo");
-                    done();
-                });
-    
-    });
+            remedyClient.get({
+                path: {
+                    schema: "User" //AR Schema name
+                },
+                parameters: {
+                    q: "'Login Name'=\"Demo\"",
+                    fields: "Login Name"
+                }
+            }, function(err, result) {
+                expect(result.entries.length).to.equal(1);
+                expect(result.entries[0].values["Login Name"]).to.equal("Demo");
+                done();
+            });
+
+        });
 
 
     });
@@ -367,6 +368,61 @@ describe("#Remedy Rest", function() {
         });
 
     });
+    describe("#Attachments", function() {
+        var remedyClient = remedy(config);
+        var entryId;
+        before(function(done) {
+            async.series([function(callback) {
+                    remedyClient.login(function(err, result) {
+                        callback();
+                    });
+                },
+                function(callback) {
+                    remedyClient.post({
+                        path: {
+                            schema: "SYSCOM:REST:TEST"
+                        },
+                        data: {
+                            values: {
+                                "Status": 0,
+                                "Short Description": "Description",
+                                "Attachment_2": "1.txt",
+                                "Attachment_1": "2.txt"
+                            },
+                            attachments: {
+                                "Attachment_2": {
+                                    path: "./test/testdata/2.txt"
+                                },
+                                "Attachment_1": {
+                                    path: "./test/testdata/1.txt"
+                                }
+                            }
+                        }
+                    }, function(err, result) {
+                        entryId = result.entryId;
+                        callback();
+
+                    });
+                }
+            ], function() {
+                done();
+            });
+        });
+        it("Get Attachment", function(done) {
+
+            remedyClient.getAttachment({
+                path: {
+                    schema: "SYSCOM:REST:TEST",
+                    id: entryId,
+                    attachfield: "Attachment_1"
+                }
+            }, function(err, result) {
+                expect(err).to.equal(null);
+                done();
+            })
+        });
+
+    });
     describe("#Check unauthorized", function() {
         var remedyClient = remedy(config);
         before(function(done) {
@@ -407,7 +463,7 @@ describe("#Remedy Rest", function() {
                 done();
             })
         });
-         it("Post entry for the form without login i", function(done) {
+        it("Post entry for the form without login i", function(done) {
 
             remedyClient.post({
                 path: {
@@ -419,11 +475,12 @@ describe("#Remedy Rest", function() {
                 done();
             })
         });
-         it("Put entry for the form without login i", function(done) {
+        it("Put entry for the form without login i", function(done) {
 
             remedyClient.put({
                 path: {
-                    schema: "SYSCOM:REST:TEST"
+                    schema: "SYSCOM:REST:TEST",
+                    id: entryId
                 }
             }, function(err, result) {
                 expect(err).to.not.equal(null);
