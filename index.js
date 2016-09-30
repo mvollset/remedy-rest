@@ -384,14 +384,15 @@ Client.prototype.requestWithAttachments = function(args, attachments, callback) 
     for (var attachment in attachments) {
         formData[attachment] = fs.createReadStream(attachments[attachment]);
     }
-    request({
-            method: method,
-            url: url,
-            formData: formData,
-            headers: {
-                "authorization": self.token
-            }
-        },
+    var reqoptions = self.getRequestOptions({
+        method: method,
+        url: url,
+        formData: formData,
+        headers: {
+            "authorization": self.token
+        }
+    });
+    request(reqoptions,
         function(error, response, body) {
             if (error) {
                 console.error("upload failed:", error);

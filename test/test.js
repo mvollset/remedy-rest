@@ -170,7 +170,7 @@ describe("#Remedy Rest", function() {
                 data: {
                     values: {
                         "Status": 0,
-                        "Short Description": "Description",
+                        "Short Description": "With attachments",
                         "Attachment_2": "1.txt",
                         "Attachment_1": "2.txt"
                     },
@@ -420,10 +420,10 @@ describe("#Remedy Rest", function() {
     });
     describe("#Check header stuff", function() {
         var localconfig = {
-                clientTypeId: "1234",
-                rpcQueue:13232
-            };
-        localconfig=_.extend(localconfig,config)
+            clientTypeId: "1234",
+            rpcQueue: 13232
+        };
+        localconfig = _.extend(localconfig, config)
         var remedyClient = remedy(localconfig);
         before(function(done) {
             remedyClient.login(function(err, result) {
