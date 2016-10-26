@@ -497,7 +497,7 @@ describe("#Remedy Rest", function() {
             remedyClient.put({
                 path: {
                     schema: "SYSCOM:REST:TEST",
-                    id: entryId
+                    id: '000000000000000001'
                 }
             }, function(err, result) {
                 expect(err).to.not.equal(null);
@@ -507,4 +507,43 @@ describe("#Remedy Rest", function() {
         });
 
     });
+    describe("#Check url encoding", function() {
+        var remedyClient = remedy(config);
+         before(function(done) {
+            remedyClient.login(function(err, result) {
+                done();
+            });
+        });
+        it('Check simple values', function(done) {
+            var obj = remedyClient.urlEncodeObject({
+                path: {
+                    p1: "%&(%/",
+                    p2: "A:B"
+                }
+            });
+            console.dir(obj);
+            done();
+        });
+        it('Check simple values', function(done) {
+            var obj = remedyClient.post({
+                path: {
+                    schema: "CFG:CFG PBB TicketNumGenerator"
+                },
+                data: {
+                    values: {
+                        "Submitter": "hr"
+                    }
+                }
+            }, function(err, data) {
+                if (err) {
+                    console.log(err.data.toString());
+                    done()
+                } else {
+                    var broadcastnumber = data.entryId;
+                    expect(broadcastnumber).to.not.equal(null);
+                    done();
+                }
+            });
+        });
+    })
 });

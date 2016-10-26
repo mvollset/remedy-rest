@@ -167,7 +167,22 @@ Client.prototype.urlEncodeArray = function(arr) {
     }
     return ret;
 };
-
+Client.prototype.urlEncodeObject = function(obj) {
+    var ret = {};
+    var keys = _.keys(obj);
+    for (var k = 0; k < keys.length; k++) {
+        var key = keys[k];
+        if (obj[key] !== null&& obj[key]!==undefined) {
+            if (typeof(obj[key]) === "string" || obj[key] instanceof String)
+                ret[key] = encodeURIComponent(obj[key]);
+            else if (Array.isArray(obj[key]))
+                ret[key] = this.urlEncodeArray(obj[key]);
+            else
+                ret[key] = this.urlEncodeObject(obj[key]);
+        }
+    }
+    return ret;
+};
 Client.prototype.getUrlParameters = function(paramvalue) {
     if (Array.isArray(paramvalue))
         return this.urlEncodeArray(paramvalue);
@@ -335,6 +350,7 @@ Client.prototype.post = function(args, callback) {
         var o = {
             headers: self.getStandardHeaders()
         };
+        args.path = self.urlEncodeObject(args.path);
         var rr = _.extend(o, args);
         this.restclient.post(self.rooturl + "entry/${schema}", rr, function(data, response) {
             if (response.statusCode === 201) {
@@ -365,6 +381,7 @@ Client.prototype.post = function(args, callback) {
 Client.prototype.requestWithAttachments = function(args, attachments, callback) {
     var self = this;
     var method = "POST";
+    args.path = self.urlEncodeObject(args.path);
     var url = self.rooturl + "entry/" + args.path.schema;
     //If no ID assume post else put 
     if (args.path.id) {
@@ -420,6 +437,7 @@ Client.prototype.put = function(args, callback) {
         var o = {
             headers: self.getStandardHeaders()
         };
+        args.path = self.urlEncodeObject(args.path);
         var rr = _.extend(o, args);
         this.restclient.put(self.rooturl + "entry/${schema}/${id}", rr, function(data, response) {
             if (response.statusCode === 204) {
@@ -449,6 +467,7 @@ Client.prototype.delete = function(args, callback) {
     var o = {
         headers: self.getStandardHeaders()
     };
+    args.path = self.urlEncodeObject(args.path);
     var rr = _.extend(o, args);
     this.restclient.delete(self.rooturl + "entry/${schema}/${id}", rr, function(data, response) {
         if (response.statusCode === 204) {
