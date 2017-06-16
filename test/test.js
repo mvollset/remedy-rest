@@ -40,6 +40,18 @@ describe("#Remedy Rest", function() {
                 done();
             });
         });
+        it("Should logout", function(done) {
+            var remedyClient = remedy(config);
+            remedyClient.login(function(err, result) {
+                expect(result).to.equal("ok");
+                remedyClient.logout(function(err,result){
+                   expect(remedyClient.token).to.equal(null); 
+                    done();
+                })
+               
+            });
+
+        });
     });
     describe("#Get", function() {
         var remedyClient = remedy(config);

@@ -3,6 +3,7 @@ var rest = require("node-rest-client").Client;
 var request = require("request");
 var querystring = require("querystring");
 var http = require("http");
+var https = require("https");
 var _ = require("underscore");
 var fs = require("fs");
 var EventEmitter = require("events").EventEmitter;
@@ -25,6 +26,7 @@ function Client(config) {
         port: config.port
     }
     this.https = config.https;
+    this.protocol=this.https?https:http;
     this.allowGuestuser = config.allowGuestuser;
     if (config.proxy_config) {
         this.proxy = config.proxy_config;
@@ -239,7 +241,7 @@ Client.prototype.login = function(callback) {
         }
     });
     var self = this;
-    var post_req = http.request(post_options, function(res) {
+    var post_req = this.protocol.request(post_options, function(res) {
         if (res.statusCode !== 200) {
             callback({
                 statusCode: res.statusCode
@@ -266,7 +268,30 @@ Client.prototype.login = function(callback) {
     post_req.write(post_data);
     post_req.end();
 };
-
+Client.prototype.logout = function(callback){
+    var post_options = this.getRequestOptions({
+        path: "http" + (this.https ? "s" : "") + "://" + this.serverinfo.host + ":" + this.serverinfo.port + "/api/jwt/logout",
+        method: "POST"
+    });
+    var self = this;
+    var post_req = this.protocol.request(post_options, function(res) {
+        if (res.statusCode !== 204) {
+            callback({
+                statusCode: res.statusCode
+            })
+        } else {
+           self.token=null;
+           callback(null,{
+                statusCode: res.statusCode
+            })
+        }
+    });
+    post_req.on("error", function(err) {
+        //console.dir(err);
+        callback(err);
+    });
+    post_req.end();
+}
 Client.prototype.options = function(args, callback) {
     var url = this.rooturl + "entry/" + args.path.schema;
     var self = this;
